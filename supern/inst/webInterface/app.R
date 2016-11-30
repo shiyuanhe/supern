@@ -11,6 +11,8 @@ library(shiny)
 library(supern)
 library(ggplot2)
 
+NLcurves = 4
+
 # Define UI for application that draws a histogram
 ui <- shinyUI(bootstrapPage(
     
@@ -34,7 +36,7 @@ ui <- shinyUI(bootstrapPage(
 <li>The light curve data begins with '#Data'.</li>
 <li>The light curve data is space (or tab) seperated with columns: filter, MJD, Mag, Mag_err.</li>
 <li>The light curves should have standard filters: B, V, R, I.</li>
-<li> Download an example file <a href='./SN2008fp_CSP_main.txt'>SN2008fp_CSP_main.txt</a>.</li>
+<li> Download an example file <a href='https://raw.githubusercontent.com/shiyuanhe/supern/master/data/SN2008fp_CSP_main.txt'>SN2008fp_CSP_main.txt</a>.</li>
 </ol>
 <br/><br/>
 <b>Example:</b><br/>
@@ -63,6 +65,8 @@ V 54724.323 14.249 0.006<br/>
             br(),
             p("Nonlinear scores via projecting to beta_1 and beta_2 curves."),
             tableOutput("nonlinearBeta12"),
+            p("The probability that this is a Type Ia Supernova."),
+            tableOutput("sniaProb"),
             h3("Intrinsic Color"),
             plotOutput("colorPlots"),
             tableOutput("colorTable"),
@@ -112,6 +116,8 @@ server <- shinyServer(function(input, output) {
         rownames(nonlinearParam) = c("nonlinear_beta1", "nonlinear_beta1_SD",
                                      "nonlinear_beta2", "nonlinear_beta2_SD")
         nonlinearParam <<- nonlinearParam
+        
+        NLcurves <<- length(cSNe$LCurves)
         cSNe$plotObs("")
     })
     
@@ -159,9 +165,11 @@ server <- shinyServer(function(input, output) {
         newXse = parameterTable["beta1_SD",]
         newYse = parameterTable["beta2_SD",]
         
-        plotXYSe(X, Y, xlab = "beta1", ylab = "beta2",
-                 xyCol = eCols,
-                 Xse = Xse, Yse = Yse,
+        xlab = expression(beta^{(1)})
+        ylab = expression(beta^{(2)})
+        
+        plotXYSe(X, Y, xlab = xlab, ylab = ylab,
+                 xyCol = eCols, Xse = Xse, Yse = Yse,
                  newX = newX, newY = newY, 
                  newXse = newXse, newYse = newYse,
                  newCols = cSNe$LCBandNames)
@@ -172,6 +180,24 @@ server <- shinyServer(function(input, output) {
         if (is.null(inFile)) return(NULL)
         
         nonlinearParam
+    }, rownames = TRUE, digits = 3)
+    
+    output$sniaProb <- renderTable({
+        
+        inFile <- input$file1
+        if(is.null(inFile)) return(NULL)
+        
+        newX = parameterTable["beta1",]
+        newY = parameterTable["beta2",]
+        newBeta12 = c(newX, newY)
+        Z = newBeta12 - beta12_mu
+        Zscalar = t(Z) %*% solve(beta12_cov) %*% Z
+        probIa =  2 * pnorm(Zscalar, lower.tail = FALSE)
+        #probIa = sqrt(probIa)
+        probIa = matrix(probIa, 1,1)
+        colnames(probIa) = "Probability"
+        rownames(probIa) = "Type Ia"
+        return(probIa)
     }, rownames = TRUE, digits = 3)
     
     output$colorPlots <- renderPlot({
@@ -284,7 +310,7 @@ server <- shinyServer(function(input, output) {
     
     # Call renderPlot for each one. Plots are only actually generated when they
     # are visible on the web page.
-    for (i in 1:length(cSNe$LCurves)) {
+    for (i in 1:NLcurves) {
         # Need local so that each item gets its own number. Without it, the value
         # of i in the renderPlot() will be the same across all instances, because
         # of when the expression is evaluated.

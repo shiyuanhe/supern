@@ -3,8 +3,8 @@ Type Ia Supernova Functional Template Model
 
 ## Folder Strucutre
 
-1. In the ```data``` folder is a SNIa data table. The data table contains all SNIa samples in this paper with their scores, spectral line strength and spectral class.
-2. In the ```supern``` folder is an R package. The software provides a web-based user interface for light curve fitting,  intrinsic color estimation, spctral line strength estimation and spectral classes determination. It also provide the probability that the submitted sample belongs to SNIa. 
+1. In the ```data``` folder contains a sample light curve data and a SNIa data table. The data table contains all SNIa samples in this paper with the scores, spectral class and etc.
+2. In the ```supern``` folder is an R package. The software provides a web-based user interface for light curve fitting,  intrinsic color estimation, and spectral classes determination. It also provide the probability that the submitted sample belongs to SNIa. 
 
 ## The supern Package
 
