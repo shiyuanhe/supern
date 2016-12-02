@@ -62,6 +62,7 @@ V 54724.323 14.249 0.006<br/>
             tableOutput("parameter"),
             h3("First Two Scores"),
             plotOutput("beta12Plots"),
+            plotOutput("beta12Legend", height = "100%"),
             br(),
             p("Nonlinear scores via projecting to beta_1 and beta_2 curves."),
             tableOutput("nonlinearBeta12"),
@@ -69,6 +70,7 @@ V 54724.323 14.249 0.006<br/>
             tableOutput("sniaProb"),
             h3("Intrinsic Color"),
             plotOutput("colorPlots"),
+            p("Estimation of the intrinsic color:"),
             tableOutput("colorTable"),
             h3("Spectral Class Classification"),
             p("The sepctral classes are from the work of
@@ -144,10 +146,11 @@ server <- shinyServer(function(input, output) {
     output$beta12Plots <- renderPlot({
         inFile <- input$file1
 
+        
+        bandN = c("B", "V", "R", "I")
         nSample = dim(allInfo)[1]
         eCols = as.vector(sapply(bandN, function(tmp) rep(tmp, nSample)))
         
-        bandN = c("B", "V", "R", "I")
         X = combineAsVector(paste0(bandN, "_scores1"))
         Y = combineAsVector(paste0(bandN, "_scores2"))
         Xse = combineAsVector(paste0(bandN, "_scoresSD1"))
@@ -175,6 +178,15 @@ server <- shinyServer(function(input, output) {
                  newCols = cSNe$LCBandNames)
     })
     
+    
+    output$beta12Legend <- renderPlot({
+        par(mar = rep(0,4))
+        plot(0,0,type = "n", xaxt = "n", yaxt = "n", bty = "n")
+        legend(-0.9,0.6, legend = c("B", "V", "R", "I"), 
+               pch = 1:4, col = "purple", horiz = TRUE)
+        legend(0,0.6, legend = paste0(c("B", "V", "R", "I"), "-new"),
+               pch = 20, col = c("red","blue","green", "black"),horiz = TRUE)
+    }, height = 80)
     output$nonlinearBeta12 <- renderTable({
         inFile <- input$file1
         if (is.null(inFile)) return(NULL)
@@ -191,7 +203,7 @@ server <- shinyServer(function(input, output) {
         newY = parameterTable["beta2",]
         newBeta12 = c(newX, newY)
         Z = newBeta12 - beta12_mu
-        Zscalar = t(Z) %*% solve(beta12_cov) %*% Z
+        Zscalar = t(Z) %*% solve(beta12_cov) %*% Z *0.9
         probIa =  2 * pnorm(Zscalar, lower.tail = FALSE)
         #probIa = sqrt(probIa)
         probIa = matrix(probIa, 1,1)

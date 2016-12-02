@@ -5,9 +5,9 @@ Version: 1.0
 Date: 2016-04-26
 Author: Shiyuan He
 Maintainer: Shiyuan He <shiyuan@stat.tamu.edu>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
-Imports: methods, Rcpp (>= 0.12.3)
-LinkingTo: Rcpp, RcppArmadillo
-Depends: R6, MASS, quadprog, splines, shiny
+Description: Type Ia Supernova light curve fitting with a funcitonal template model.
+License: GNU General Public License v3.0
+Imports: methods
+Depends: R6, quadprog, splines, shiny
 LazyData: TRUE
+  

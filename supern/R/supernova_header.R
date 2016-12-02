@@ -150,7 +150,7 @@ supernova <- R6Class(
             plot(0,0, xlab="MJD",
                  ylab = "Magnitude", type="n",
                  xlim = xlimObs, ylim = ylimObs,
-                 main = paste0(sneName,"-",obsProj))
+                 main = "") # paste0(sneName,"-",obsProj)
         },
         
         initPhasePlot = function(filter){

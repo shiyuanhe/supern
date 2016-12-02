@@ -55,22 +55,66 @@ sneLCModel <- R6Class(
         },
         
         # bootstrap after model fit
-        bootFit = function(LCurve_, nBoot){
+        bootFit = function(LCurve_, nBoot, plotBoot = FALSE){
             bootInitParams(LCurve_, nBoot)
             pp_grid = seq(phase_min, phase_max, length.out = 300)
             allFits = matrix(0, 300, nBoot)
 
-            ylim = c(max(LCurve_$mag),  min(LCurve_$mag))
-            plot(LCurve_$mjd, LCurve_$mag, ylim = ylim)
+            if(plotBoot){
+                par0 = par(mfrow = c(2,1), mar = c(4,4, 1,1))
+                ylim = c(max(LCurve_$mag),  min(LCurve_$mag))
+                plot(LCurve_$mjd, LCurve_$mag, ylim = ylim, 
+                     xlab = "JD", ylab = "Mag", pch = 20)
+                arrows(LCurve_$mjd, LCurve_$mag + LCurve_$sigma, 
+                       LCurve_$mjd, LCurve_$mag - LCurve_$sigma, 
+                       length = 0.02, code = 3, angle = 90)
+                
+            }
+            
 
             for(b in 1:nBoot){
                 newLC = bootNewLC(LCurve_)
-                newLC$addObsPoints(pCol = "grey")
                 modelFit(newLC)
+                #newLC$addPhaseFit()
+                
                 bootUpdateParams(LCurve_, newLC, b)
                 allFits[, b] = newLC$params$mcurve(pp_grid)
+                
+                if(plotBoot){
+                    lines(pp_grid + newLC$params$tmax, allFits[,b], col = "grey")
+                    points(newLC$params$tmax, ylim[1], pch = 4, 
+                           col = "red", cex = 1)
+                }
 
             }
+
+            if(plotBoot){
+                points(LCurve_$mjd, LCurve_$mag, pch = 20)
+                arrows(LCurve_$mjd, LCurve_$mag + LCurve_$sigma, 
+                       LCurve_$mjd, LCurve_$mag - LCurve_$sigma, 
+                       length = 0.02, code = 3, angle = 90)
+                
+            }
+            
+            
+            if(plotBoot){
+                ylim = c(max(LCurve_$mag),  min(LCurve_$mag))
+                plot(LCurve_$phase, LCurve_$mag, ylim = ylim, 
+                     xlab = "Phase", ylab = "Mag", pch = 20)
+                for(b in 1:nBoot){
+                    lines(pp_grid, allFits[,b], col = "grey")
+                }
+                points(LCurve_$phase, LCurve_$mag, pch = 20)
+                arrows(LCurve_$phase, LCurve_$mag + LCurve_$sigma, 
+                       LCurve_$phase, LCurve_$mag - LCurve_$sigma, 
+                       length = 0.02, code = 3, angle = 90)
+                abline(v = 0, lty = 2)
+                abline(h = LCurve_$params$mmax, lty = 2)
+                par(par0)
+
+            }
+            
+            
             yy_grid = apply(allFits, 1, mean)
             LCurve_$params$mcurve_boot = approxfun(pp_grid, yy_grid)
             yy_grid = apply(allFits, 1, sd)
