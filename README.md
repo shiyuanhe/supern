@@ -10,13 +10,13 @@ Type Ia Supernova Functional Template Model
 The supern Package provides a web user interface for light curve fitting. Light curve file can be uploaded for analysis.
 
 
-
 To install the package, we need to install the prerequisite packages firstly,
 
 ```r
-install.packages("R6")
-install.packages("shiny")
-install.packages("quadprog")
+install.packages("R6", dependencies= TRUE)
+install.packages("shiny", dependencies= TRUE)
+install.packages("quadprog", dependencies= TRUE)
+install.packages("devtools", dependencies= TRUE)
 ```
 
 
