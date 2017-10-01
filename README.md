@@ -3,8 +3,9 @@ Type Ia Supernova Functional Template Model
 
 ## Folder Strucutre
 
-1. In the ```data``` folder contains a sample light curve data and a SNIa data table. The data table contains all SNIa samples in this paper with the scores, spectral class and etc.
-2. In the ```supern``` folder is an R package. The software provides a web-based user interface for light curve fitting,  intrinsic color estimation, and spectral classes determination. It also provide the probability that the submitted sample belongs to SNIa. 
+1. The ```data``` folder contains a sample light curve data and a SNIa data table. The data table contains all SNIa samples in this paper with the scores, spectral class and etc.
+2. In the ```supern``` folder is an R package. The software provides a web-based user interface for light curve fitting,  intrinsic color estimation, and spectral classes determination. It also provide the probability that the submitted sample belongs to SNIa. This implements the band-vague model.
+3. In the ```template``` folder are the SNe template for both the band-vauge and band-specific model. The mean function and the first four functional principal components are provided.
 
 ## The supern Package
 The supern Package provides a web user interface for light curve fitting. Light curve file can be uploaded for analysis.
@@ -35,7 +36,6 @@ library(supern)
 runWebInterface()
 ```
 
-The web interface is also hosted at [http://heshiyuan.name:3838/snelc/](http://heshiyuan.name:3838/snelc/).
 
 ### Submitted file format
 
